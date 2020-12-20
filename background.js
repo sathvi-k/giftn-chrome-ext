@@ -50,9 +50,6 @@ chrome.runtime.onMessage.addListener(
                 var names = [];
 
                 for (i = 0; i < n; i++) {
-                    console.log('person', people[i]);
-                    console.log('name', people[i].name);
-                    console.log('id', people[i].id);
                     dict[people[i].name] = people[i].id;
                     names.push(people[i].name);
                 }
