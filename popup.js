@@ -1,32 +1,33 @@
 let people;
 let mappedIds;
 
+// on window load, send a message to the background script to load the signed-in user's information
 window.onload = function() {
     chrome.runtime.sendMessage(
         {command: "getUserInfo"}
     );
 
+    // after receiving user's list of people who they're buying gifts for, add people as options to the dropdown to select
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
             if (request.command == "sendPeople") {
-                console.log('req people', request.people);
-                people = request.people;
-                mappedIds = request.mappedIds;
-                console.log('req people', people);
-                console.log('req mapped ids', mappedIds);
+                people = request.people; // array of people's names
+                mappedIds = request.mappedIds; // json object with peoples' names as keys and their IDs in the backend database as values
+                // map all options to the dropdown selector component
                 people.map((name) => {
-                    var x = document.createElement("OPTION");
-                    x.setAttribute("value", name);
-                    var t = document.createTextNode(name);
-                    x.appendChild(t);
-                    document.getElementById("dropdown-add-gift").appendChild(x);
+                    var option = document.createElement("OPTION");
+                    option.setAttribute("value", name);
+                    var textNode = document.createTextNode(name);
+                    option.appendChild(textNode);
+                    document.getElementById("dropdown-add-gift").appendChild(option);
                 })
-                return true; 
+                return true; // respond asynchronously
             }
         }
     )
 }
 
+// function to generate a random gift id 
 function uuidv4() {  
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {    
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);    
@@ -34,33 +35,26 @@ function uuidv4() {
     });
 }
 
+// function that is called when the user presses the add gift button after seeing a product they may want to gift to a friend
 function addGift() {
-    // access backend
-    // for this user (google id), get list of people user is buying gifts for and show in drop down using the map function and document
-    // make call to backend after user presses add gift button -- add gift under the selected person
-
+    // get selected person's name and ID from the dropdown selector containing the list of people the user is buying gifts for
     var e = document.getElementById("dropdown-add-gift");
     var friend = e.value;
-    console.log(friend);
     var friendID = mappedIds[friend]
-
-    console.log('friendID: ', friendID);
 
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         var url = tabs[0].url;
-        console.log('url: ', url);
-
+        
+        // if on an amazon product page, extract the ASIN (used to extract information about products on amazon.com)
         let asin;
         var regex = RegExp("https://www.amazon.com/([\\w-]+/)?(dp|gp/product)/(\\w+/)?(\\w{10})");
         m = url.match(regex);
         if (m) { 
             asin = m[4];
         } 
-        console.log('asin: ', asin);
 
-        // make call to rainforest api using asin to get more product information
+        // make call to rainforest api using ASIN to get more information about the product
         const API = `https://api.rainforestapi.com/request?api_key=EC5DB0CF47884FB6BD5BE1D9253AF2BE&type=product&amazon_domain=amazon.com&asin=${asin}`;
-
         function getData() {
             return new Promise((resolve, reject) => {
                 fetch(API, {
@@ -70,33 +64,24 @@ function addGift() {
                     }
                 }).then(response => {
                     response.json().then((data) => {
-                        console.log('data', data);
                         resolve(data);
                     });
-                    console.log('fetch', response);
                 }).catch(error => {
                     console.log("Error fetching response: ", error);
                 });
             })    
         }
 
+        // get link to product page, the product's name and price, and generate a random gift ID
         getData().then(data => {
             let name = data.product.title;
             let link = data.product.link;
-            let price = data.product.buybox_winner.price.raw;
             let value = data.product.buybox_winner.price.value.toString();
-    
-            console.log('name: ', name);
-            console.log('link: ', link);
-            console.log('price: ', price);
-            console.log('value: ', value);
             const uniqueID = uuidv4();
 
-            //addGiftToPerson
+            // add gift as an option for this person
             const url = `http://localhost:9090/api/personGift/${friendID}`;
-            console.log(url);
             const bodyData = JSON.stringify({"gift": {"giftName":name, "price":value, "link":link, "id":uniqueID }});
-            console.log(bodyData);
             fetch(url, {
                 method: "POST",
                 headers:  { 
@@ -105,14 +90,16 @@ function addGift() {
                 },
                 body: bodyData
             }).then((response) => {
-                console.log('just res', response);
                 response.json().then((data) => {
                     console.log('data', data);
                 })
+            }).catch(error => {
+                console.log("Error fetching response: ", error);
             });
+
+            // let user know their choice has been saved to the database by displaying a message on the popup
             document.getElementById('prompt').innerHTML = 'Added ' + name + ' for ' + friend + '!';
         });
-        chrome.tabs.executeScript(tabs[0].id, {file: "content_script.js"});
     });
 }
 
