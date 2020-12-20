@@ -1,0 +1,23 @@
+{
+    "key": "",
+    "manifest_version": 2,
+    "name": "Giftn",
+    "description": "This extension helps you find gifts for your friends and family",
+    "version": "1.0",
+    "background": {
+        "page": "background.html"
+    },
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "tabs", 
+        "*://www.amazon.com/*",
+        "identity"
+    ],
+    "oauth2": {
+        "client_id": "378735924994-knhso2dtafl79msh19jbl9d3hvfuut9h.apps.googleusercontent.com",
+        "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
+    },
+    "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'"
+}
