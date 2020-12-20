@@ -10,8 +10,57 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
+// var db = firebase.firestore();
 let user = {};
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+    chrome.tabs.executeScript(null, {file: "testScript.js"});
+ });
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+      if (request.command == "getUserInfo") {
+        const userID = '103897508817747912934'; // get from background.js, user info
+        const url = `http://localhost:9090/api/user/${userID}`;
+        console.log(url);
+        fetch(url, {
+            headers:  { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                "Access-Control-Allow-Origin" : "*", 
+                "Access-Control-Allow-Credentials" : true 
+            }
+        }).then((response) => {
+            console.log('just res', response);
+            response.json().then((data) => {
+                console.log('data', data);
+                // const budget = data.budget;
+                const people = data.people;
+                console.log('people', people);
+                const n = people.length;
+                var dict = {}; // maps names to person id
+                var names = [];
+
+                for (i = 0; i < n; i++) {
+                    console.log('person', people[i]);
+                    console.log('name', people[i].name);
+                    console.log('id', people[i].id);
+                    dict[people[i].name] = people[i].id;
+                    names.push(people[i].name);
+                }
+                console.log('dict', dict);
+                console.log('names', names);
+                chrome.runtime.sendMessage(
+                    {command: "sendPeople", people: names, mappedIds: dict}
+                );
+                
+            });
+        }).catch(error => {
+            console.log("Error fetching response: ", error);
+        });
+        return true;  // Will respond asynchronously.
+      }
+});
 
 chrome.identity.getAuthToken({ interactive: true }, function(token) {
     if (chrome.runtime.lastError) {
@@ -29,6 +78,5 @@ chrome.identity.getAuthToken({ interactive: true }, function(token) {
         user = jsonResponse;
         email = user.email;
         console.log('user', user);
-        // document.getElementById('user-email').innerHTML = "Welcome, " + email;
     });
 });

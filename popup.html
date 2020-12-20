@@ -3,22 +3,17 @@
 <link href='https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Montserrat&family=Poiret+One&family=Spectral:wght@400;600&display=swap' rel='stylesheet'    type='text/css' />
 <html>
     <body>
-        <div class="title">Giftn</div>
-        <button id="clickactivity">click</button>  
+        <div class="container">
+            <img src="images/name.svg" alt="name-logo">
+        </div>
+        <div id="prompt">Add this gift to your Gift List</div>
         <div id="item-name"> </div>
-        <div class="addgift"><button id="addgift">Add Gift</button></div>
         <div class="selectperson">
             <select type="select" id="dropdown-add-gift">
-                <option value="red">red</option>
-                <option value="green">green</option>
-                <option value="blue">blue</option>
-                <option value="yellow">yellow</option>
-                <!--
-                {this.props.user.people.map((person) => {
-                return <option key={person.name} value={person.name}>{person.name}</option>;
-                })}-->
+                <option value="NULL">Select a person</option>
             </select>
         </div>
+        <div id="addgift"><button id="addgift-btn">Add to my list</button></div>
         <script src="popup.js"></script> 
     </body>
 </html>

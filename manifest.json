@@ -1,5 +1,5 @@
 {
-    "key": "",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtZ3zLm9iRJExHyz1UI4rd6eWMeHimuMqQyD92kUHiSJSkgoDYf5OEk+H7Zy85HtuiA+uV+m1dvqJsVeUZ3PRSGspGodx628Krm/d6kNtXa184COJpFq1Mgk9s7aeotH6ArDJFu7JEAa4EVYKwZPU7SuRA0BN1g2M7MZLO7yM6rTd5ciYPlJyyxTXJ8hYnNjW+i1SeLlWTE5orgimFJmTcrbp/l8jEV4CZz5Up2kATJ+FuNuVC6PYk/sdG8pFu9i7rlmk6QbvbtQKe52rot/R7ayWJA/yQFnmFWVLTVzjCabhWKIpkbnF61PK3GcAtToT2OSOGQGj0ZIYoSJvDuG+QwIDAQAB",
     "manifest_version": 2,
     "name": "Giftn",
     "description": "This extension helps you find gifts for your friends and family",
@@ -8,15 +8,17 @@
         "page": "background.html"
     },
     "browser_action": {
+        "default_icon": "images/48.png",
         "default_popup": "popup.html"
     },
     "permissions": [
         "tabs", 
         "*://www.amazon.com/*",
-        "identity"
+        "identity",
+        "storage"
     ],
     "oauth2": {
-        "client_id": "378735924994-knhso2dtafl79msh19jbl9d3hvfuut9h.apps.googleusercontent.com",
+        "client_id": "123538290178-4ih1tf2qfa0gcm6gf8fohqiik7s59024.apps.googleusercontent.com",
         "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
     },
     "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'"
